@@ -8,7 +8,6 @@ pipeline {
             }
         }
     }
-}
     post {
         failure {
             sh '''
@@ -26,4 +25,5 @@ pipeline {
             }
         }
     }
+}
 
