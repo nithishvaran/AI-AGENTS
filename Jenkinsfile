@@ -8,6 +8,7 @@ pipeline {
             }
         }
     }
+}
     post {
         failure {
             sh '''
