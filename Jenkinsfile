@@ -4,7 +4,13 @@ pipeline {
     stages {
         stage('Run Python') {
             steps {
-                sh 'python3 hello.py'
+                sh '''
+                    set +e
+                    python3 hello.py > build.log 2>&1
+                    rc=$?
+                    cat build.log
+                    exit $rc
+                '''
             }
         }
     }
@@ -17,7 +23,6 @@ pipeline {
             '''
             withCredentials([
                 string(credentialsId: 'claude-api-key', variable: 'ANTHROPIC_API_KEY'),
-                usernamePassword(credentialsId: 'jenkins-api-token', usernameVariable: 'JENKINS_USER', passwordVariable: 'JENKINS_API_TOKEN'),
                 usernamePassword(credentialsId: 'gmail-app-password', usernameVariable: 'GMAIL_USER', passwordVariable: 'GMAIL_APP_PASSWORD'),
                 string(credentialsId: 'failure-email-to', variable: 'FAILURE_EMAIL_TO')
             ]) {
@@ -26,4 +31,3 @@ pipeline {
         }
     }
 }
-

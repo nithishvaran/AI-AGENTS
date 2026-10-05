@@ -1,11 +1,7 @@
-import base64
 import os
 import smtplib
 import subprocess
-import urllib.error
-import urllib.request
 from email.message import EmailMessage
-from urllib.parse import urljoin
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
@@ -23,17 +19,12 @@ def required_env(name: str) -> str:
 
 
 def fetch_console_log() -> str:
-    build_url = required_env("BUILD_URL")
-    request = urllib.request.Request(urljoin(build_url.rstrip("/") + "/", "consoleText"))
-    credentials = f"{required_env('JENKINS_USER')}:{required_env('JENKINS_API_TOKEN')}"
-    auth = base64.b64encode(credentials.encode()).decode()
-    request.add_header("Authorization", f"Basic {auth}")
-
+    log_path = os.path.join(os.getenv("WORKSPACE", os.getcwd()), "build.log")
     try:
-        with urllib.request.urlopen(request, timeout=20) as response:
-            log = response.read(1_000_000).decode("utf-8", errors="replace")
-    except (urllib.error.URLError, TimeoutError) as error:
-        raise RuntimeError(f"Could not retrieve Jenkins console log: {error}") from error
+        with open(log_path, encoding="utf-8", errors="replace") as log_file:
+            log = log_file.read()
+    except OSError as error:
+        raise RuntimeError(f"Could not read build log {log_path}: {error}") from error
 
     if len(log) > MAX_LOG_CHARS:
         log = "[Earlier log content omitted. Showing the final portion. ]\n" + log[-MAX_LOG_CHARS:]
