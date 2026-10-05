@@ -97,7 +97,7 @@ def create_report(console_log: str, git_context: str) -> str:
         ]
     )
     model = ChatAnthropic(
-        model=os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5"),
+        model=os.getenv("CLAUDE_MODEL", "claude-haiku-4-5-20251001"),
         temperature=0,
         max_tokens=1200,
     )
